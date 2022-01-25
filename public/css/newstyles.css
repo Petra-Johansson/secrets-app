@@ -1,0 +1,62 @@
+*, ::after, ::before {
+    box-sizing: border-box;
+}
+body {
+    background-color: #114357;
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.5;
+    color: #2b2c2c;
+    text-align: left;
+  }
+  
+  .centered {
+      padding-top: 200px;
+      text-align: center;
+  }
+  
+  .secret-text {
+    text-align: center;
+    font-size: 2rem;
+    color: #fff;
+    background-color: #000;
+  }
+  .container {
+    background-color: rgba(250, 228, 232, 0.87);
+    padding: 2% 2%;
+  }
+  .jumbotron {
+    background-color: #114357;
+    padding: 4rem 2rem;
+    border-radius: 0.3rem;
+  }
+  .text-center {
+    text-align: center!important;
+}
+  .card{
+    border:none;
+  }
+  .btn-card {
+    background-color: white;
+    border: none;
+  }
+  .btn-grad {background-image: linear-gradient(to right, #114357 0%, rgba(255, 192, 203, 0.87)  51%, #114357  100%)}
+  .btn-grad {
+     margin: 10px;
+     padding: 15px 45px;
+     text-align: center;
+     text-transform: uppercase;
+     transition: 0.5s;
+     background-size: 200% auto;
+     color: white;            
+     box-shadow: 0 0 5px #eee;
+     border-radius: 10px;
+     display: block;
+   }
+  
+   .btn-grad:hover {
+     background-position: right center; /* change the direction of the change here */
+     color: #fff;
+     text-decoration: none;
+   }
+  

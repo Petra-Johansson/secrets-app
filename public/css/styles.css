@@ -1,0 +1,124 @@
+
+body {
+  background-color: #114357;
+  font-family: 'Poppins', sans-serif;
+  height: 90vh;
+}
+
+.centered {
+  padding-top: 200px;
+  text-align: center;
+}
+
+.secret-text {
+  text-align: center;
+  font-size: 2rem;
+  color: #fff;
+  background-color: #000;
+}
+.container {
+  background-color: white;
+  padding: 2% 2%;
+}
+.jumbotron {
+  background-color: #114357;
+}
+.card{
+  border:none;
+}
+.btn-card {
+  background-color: white;
+  border: none;
+}
+
+.btn-grad {
+   /*background-image: linear-gradient(to right, #114357 0%, rgba(255, 192, 203, 0.87)  51%, #114357  100%);*/
+   background-image: linear-gradient(to right, #114357 0%,rgba(185, 9, 9, 0.87)  51%, #114357  100%);
+   margin: 10px;
+   padding: 15px 10px;
+   text-align: center;
+   text-transform: uppercase;
+   transition: 0.5s;
+   background-size: 200% auto;
+   color: white;            
+   box-shadow: 0 0 5px #eee;
+   border-radius: 10px;
+   display: block;
+ }
+
+ .btn-grad:hover {
+   background-position: right center; /* change the direction of the change here */
+   color: #fff;
+   text-decoration: none;
+ }
+
+ .btn-dark, .btn-light {
+  background-image: linear-gradient(to right, #114357 0%, rgba(22, 114, 60, 0.87)  51%, #114357  100%);
+  margin: 10px 0;
+  margin-right: 20px;
+   padding: 10px 20px;
+   text-align: center;
+   text-transform: uppercase;
+   transition: 0.5s;
+   background-size: 200% auto;
+   color: white;            
+   box-shadow: 0 0 5px #eee;
+   border-radius: 10px;
+  
+   width: 20%;
+ }
+ .btn-dark:hover {
+  background-position: right center; /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+.btn-light:hover {
+  background-position: center right; /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
+ 
+ .header-icon{
+   text-align: center;
+ }
+#home-btn {
+  color: black;
+  text-decoration: none;
+  
+}
+#home-btn:hover {
+  color: #114357;
+}
+
+#cookie-accept,
+#cookie-cancel {
+  box-shadow: 0 0 5px #eee;
+  border-radius: 10px;
+  margin: 0 5px;
+}
+#cookie-accept:hover,
+#cookie-cancel:hover {
+  cursor: pointer;
+  background-color: white;
+  font-weight: bolder;
+}
+.fa-cookie{
+  margin-bottom: 5%;
+}
+
+#consent-popup {
+  width: 100%;
+  text-align:center;
+  position: sticky;
+  bottom: 20%;
+  left: 0;
+  right: 0;
+  padding: 5%;
+  background-color: rgba(255, 255, 255, 0.966);
+  opacity: 1;
+  transition: opacity .8s ease;
+}
+#consent-popup.active {
+
+  display:none;
+}

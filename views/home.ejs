@@ -1,0 +1,29 @@
+<%- include('partials/header') %>
+
+
+<div class="jumbotron centered">
+  <div class="container">
+    <div class="header-icon"><i class="fas fa-lock fa-6x"></i></div>
+    <h1 class="display-3">Secrets</h1>
+    <p class="lead">Don't keep your secrets, share them anonymously!</p>
+    <hr>
+    <a class="btn btn-light btn-lg" href="/register" role="button">Register</a>
+    <a class="btn btn-dark btn-lg" href="/login" role="button">Login</a>
+
+  </div>
+
+<div class="cookie-consent-model">
+<div id="consent-popup">
+  <i class="fas fa-cookie fa-4x fa-pulse"></i>
+  <p>By using this site you agree to our <a href="#">Terms and conditions</a>.<br>
+  Please <button id="cookie-accept">ACCEPT</button> these before using our site.<br>
+  <button id="cookie-cancel">Cancel</button>
+  </p>
+</div>
+</div>
+</div>
+<script src="cookies.js"></script>
+<script src="cookiesgdpr.js"></script>
+
+<%- include('partials/footer') %>
+
