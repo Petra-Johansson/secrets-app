@@ -59,7 +59,7 @@ body {
    padding: 10px 20px;
    text-align: center;
    text-transform: uppercase;
-   transition: 0.5s;
+   transition: 0.7s;
    background-size: 200% auto;
    color: white;            
    box-shadow: 0 0 5px #eee;
@@ -90,14 +90,14 @@ body {
   color: #114357;
 }
 
-#cookie-accept,
-#cookie-cancel {
+#accept-btn,
+#cancel-btn {
   box-shadow: 0 0 5px #eee;
   border-radius: 10px;
   margin: 0 5px;
 }
-#cookie-accept:hover,
-#cookie-cancel:hover {
+#accept-btn:hover,
+#cancel-btn:hover {
   cursor: pointer;
   background-color: white;
   font-weight: bolder;
@@ -106,7 +106,7 @@ body {
   margin-bottom: 5%;
 }
 
-#consent-popup {
+.cookie-consent-model {
   width: 100%;
   text-align:center;
   position: sticky;
@@ -118,7 +118,7 @@ body {
   opacity: 1;
   transition: opacity .8s ease;
 }
-#consent-popup.active {
+.cookie-consent-model.active {
 
   display:none;
 }

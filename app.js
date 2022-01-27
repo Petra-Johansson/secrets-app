@@ -196,6 +196,39 @@ app.post('/login', function(req, res){
 });
 
 
+// friendly recaptcha
+function recaptcha_callback() {
+    var loginBtn = document.querySelector('#login-btn');
+    loginBtn.removeAttribute('disabled');
+    loginBtn.style.cursor = 'pointer';
+}
+
+/*
+// cookies som raz gjort 
+
+let cookieConsent = document.querySelector(".cookie-consent")
+let acceptBtn = document.querySelector(".accept-btn")
+let declineBtn = document.querySelector(".decline-btn")
+
+declineBtn.addEventListener("click", function(){
+    cookieConsent.classList.remove("active")
+    alert("You Cannot Access This Page")
+     location.reload() 
+})
+
+acceptBtn.addEventListener("click", function(){
+    cookieConsent.classList.remove("active")
+    localStorage.setItem("cookieAccepted", "yes")
+})
+
+setTimeout(function () {
+    let cookieAccepted = localStorage.getItem("cookieAccepted")
+    if(cookieAccepted != "yes"){
+        cookieConsent.classList.add("active")
+    }
+})
+*/
 app.listen(3000, function(){
     console.log('Server started on port 3000');
 });
+
