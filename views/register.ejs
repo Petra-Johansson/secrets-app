@@ -20,11 +20,11 @@
               <input type="password" class="form-control" name="password" required>
             </div>
             <div class="captcha-container">
-              <div class="frc-captcha" data-sitekey="FCMM87G31C3E2V7P" data-callback="recaptcha_callback"></div>
+              <div class="frc-captcha" data-sitekey="FCMM87G31C3E2V7P"></div>
               <br/>
-              <div class="g-recaptcha" data-sitekey="6Ld-eiIeAAAAAHOSyH_jxBKDn_IkFSlvy4x36GxT"></div>
+              <div class="g-recaptcha" data-sitekey="6Ld-eiIeAAAAAHOSyH_jxBKDn_IkFSlvy4x36GxT" data-callback="recaptcha_callback"></div>
           </div>
-            <button type="submit" class="btn btn-dark register-btn">Register</button>
+            <button id="registerBtn" type="submit" class="btn btn-dark register-btn" disabled>Register</button>
           </form>
 
         </div>
@@ -49,7 +49,6 @@
 <%- include('partials/footer') %>
 <script>
   function recaptcha_callback() {
-      var registerBtn = document.querySelector('#register-btn');
-      registerBtn.removeAttribute('disabled');
+      document.getElementById('registerBtn').disabled = false;
   }
 </script>

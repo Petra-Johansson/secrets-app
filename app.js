@@ -9,12 +9,49 @@ const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
+
+
+const auditLog = require('audit-log');
 const app = express();
 const https = require('https');
 const http = require('http');
 const fs = require("fs");
 
 
+/* AUDIT LOGGING GREJER
+// Config for auditLoggingService.
+const auditMiddleware = require('./node-audit-logging/middleware');
+const auditLogConfig = {...}; // Retrieved from the environment using @sap/xsenv.
+// app.use(auditMiddleware(auditLogConfig, 1)); // Here we select using v1.
+app.use(auditMiddleware(auditLogConfig, 2));
+app.get('/', async function (req, res) {
+  let auditLog = req.auditLog;
+  // ...
+});
+
+
+var auditLog = require('@sap/audit-logging')(credentials, securityContext);
+var credentials = {
+    "uaa": {
+        "clientid": "clientid",
+        "clientsecret": "clientsecret",
+        "url": "https://host/:port"
+    }
+    "url": "https://host/:port"
+};
+*/
+
+const PORT = process.envPORT || 3000
+auditLog.addTransport('mongoose', {connectionString: 'mongodb://localhost:27017/ourDB"'});
+auditLog.addTransport('console');
+
+
+const options = {
+    key: fs.readFileSync('petras-key.pem'),
+    cert: fs.readFileSync('petras-cert.pem')
+}; 
+
+app.use('/healthcheck', require('./routes/healthcheck.routes'));
 
 app.use(express.static('public')); //use the location for our css
 app.set('view engine', 'ejs');
@@ -48,7 +85,7 @@ const userSchema = new mongoose.Schema ({
 userSchema.plugin(passportLocalMongoose); // call plugin save = crypting
 userSchema.plugin(findOrCreate);          // call plugin find = decrypting
 
-const User = new mongoose.model("User", userSchema); //Skapa
+const User = new mongoose.model("User", userSchema);
 
 
 passport.use(User.createStrategy());
@@ -203,32 +240,21 @@ function recaptcha_callback() {
     loginBtn.style.cursor = 'pointer';
 }
 
-/*
-// cookies som raz gjort 
-
-let cookieConsent = document.querySelector(".cookie-consent")
-let acceptBtn = document.querySelector(".accept-btn")
-let declineBtn = document.querySelector(".decline-btn")
-
-declineBtn.addEventListener("click", function(){
-    cookieConsent.classList.remove("active")
-    alert("You Cannot Access This Page")
-     location.reload() 
-})
-
-acceptBtn.addEventListener("click", function(){
-    cookieConsent.classList.remove("active")
-    localStorage.setItem("cookieAccepted", "yes")
-})
-
-setTimeout(function () {
-    let cookieAccepted = localStorage.getItem("cookieAccepted")
-    if(cookieAccepted != "yes"){
-        cookieConsent.classList.add("active")
+function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+    console.log('User signed out.');
+  });
     }
-})
-*/
-app.listen(3000, function(){
-    console.log('Server started on port 3000');
+
+
+app.listen(PORT , ()=>{
+    console.log(`STARTED LISTENING ON PORT ${PORT}`)
 });
 
+http.createServer(app).listen(8080, function(){
+  console.log('HTTP listening on 8080');
+});
+https.createServer(options, app).listen(443, function(){
+  console.log('HTTPS listening on 443');
+});

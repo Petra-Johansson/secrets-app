@@ -7,23 +7,50 @@
     <h1 class="display-3">Secrets</h1>
     <p class="lead">Don't keep your secrets, share them anonymously!</p>
     <hr>
-    <a class="btn btn-light btn-lg" href="/register" role="button">Register</a>
-    <a class="btn btn-dark btn-lg" href="/login" role="button" >Login</a>
 
+   
+    
+<button id="registerBtn" class="btn btn-light btn-lg" disabled>
+  <a href="/register">Register</a> </button> 
+<button id="loginBtn" class="btn btn-dark btn-lg" disabled><a href="/login">Login</a></button>
   </div>
 
-  <!--
-<div class="cookie-consent-model">
-<div id="consent-popup">
-  <i class="fas fa-cookie fa-4x fa-pulse"></i>
+
+  <div id="cookie-consent">
+ <i class="fas fa-cookie fa-4x fa-pulse"></i>
   <p>By using this site you agree to our <a href="#">Terms and conditions</a>.<br>
   Please <button id="accept-btn">ACCEPT</button> 
   these before using our site.<br>
   <button id="cancel-btn">Cancel</button>
   </p>
-</div>
-</div>
--->
+  </div>
+
+
+
+  <script>
+    const cookieContainer = document.getElementById("cookie-consent");
+    const cookieAccept = document.getElementById("accept-btn");
+
+    cookieAccept.addEventListener("click", () => { 
+      console.log('user accepted cookies');
+      cookieContainer.classList.remove("active");
+      localStorage.setItem("cookieBannerDisplayed", "true");
+      document.getElementById("registerBtn").disabled = false; 
+      document.getElementById("loginBtn").disabled = false; 
+    });
+    setTimeout(() => {
+      if (!localStorage.getItem("cookieBannerDisplayed")) {
+        cookieContainer.classList.add("active");
+      }
+    }, 2000);
+     const cancelButton = document.getElementById("cancel-btn");
+    cancelButton.addEventListener("click", () => {
+      console.log("user rejected cookies");
+    document.getElementById("registerBtn").disabled = true;
+    document.getElementById("loginBtn").disabled = true;   
+     });
+    </script>
+
 </div>
 
 <%- include('partials/footer') %>
