@@ -210,6 +210,7 @@ app.post('/login', function(req, res){
         password: req.body.password
     });
     auditLog.logEvent(user.username, 'maybe script name or function', 'what just happened', 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
+    
     req.login(user, function(err){
         if(err){
             console.log(err);
