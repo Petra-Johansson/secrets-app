@@ -10,7 +10,8 @@ const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 
-
+const MongoClient = require('mongodb').MongoClient;
+const logger = require('./config/logger')
 const auditLog = require('audit-log');
 const app = express();
 const https = require('https');
@@ -18,32 +19,10 @@ const http = require('http');
 const fs = require("fs");
 
 
-/* AUDIT LOGGING GREJER
-// Config for auditLoggingService.
-const auditMiddleware = require('./node-audit-logging/middleware');
-const auditLogConfig = {...}; // Retrieved from the environment using @sap/xsenv.
-// app.use(auditMiddleware(auditLogConfig, 1)); // Here we select using v1.
-app.use(auditMiddleware(auditLogConfig, 2));
-app.get('/', async function (req, res) {
-  let auditLog = req.auditLog;
-  // ...
-});
+auditLog.addTransport("mongoose", {connectionString: "mongodb://localhost/auditdb"})
 
-
-var auditLog = require('@sap/audit-logging')(credentials, securityContext);
-var credentials = {
-    "uaa": {
-        "clientid": "clientid",
-        "clientsecret": "clientsecret",
-        "url": "https://host/:port"
-    }
-    "url": "https://host/:port"
-};
-*/
-
-const PORT = process.envPORT || 3000
-auditLog.addTransport('mongoose', {connectionString: 'mongodb://localhost:27017/ourDB"'});
-auditLog.addTransport('console');
+const PORT = process.env.PORT || 3000
+const uri = process.env.MONGODB;
 
 
 const options = {
@@ -59,19 +38,20 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-//cookies
+//session cookies
 app.use(session({
     secret:"Our little secret.",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true,
+    cookie: { secure: true }
 }));
 
 app.use(passport.initialize()); //starting passport encryption
 app.use(passport.session());    //passport starting session cookies
 
 //connection to our Mono DB where we have a document for our users.
-//if user registers with Google we can only se the Google ID and submitted Secret
-//if user registers via the form, we can se username, encrypted password and secret   
+//if user registers with Google we can only see the Google ID and submitted Secret
+//if user registers via the form, we can see username, encrypted password and secret   
 mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
 //mongoose.set("useCreateIndex", true); this is no longer needed in Mongoose 6
 
@@ -119,10 +99,14 @@ passport.use(new GoogleStrategy({
 
 
 
+
+
 /* 
 ### ALL ROUTES ###
 */ 
 app.get('/', function(req,res){
+  
+
     res.render('home')
 });
 
@@ -189,11 +173,16 @@ app.post('/submit', function(req, res) {
     });
 });
 
-app.get('/logout', function(req,res){
+app.get('/logout', function(req, res, next) {
+    // remove the req.user property and clear the login session
     req.logout();
+  
+    // destroy session data
+    req.session = null;
+  
+    // redirect to homepage
     res.redirect('/');
-});
-
+  });
 
 /*
 The user gets redirected to the Secrets-section if registration or log in = success.
@@ -220,6 +209,7 @@ app.post('/login', function(req, res){
         username: req.body.username,
         password: req.body.password
     });
+    auditLog.logEvent(user.username, 'maybe script name or function', 'what just happened', 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
     req.login(user, function(err){
         if(err){
             console.log(err);
@@ -240,21 +230,18 @@ function recaptcha_callback() {
     loginBtn.style.cursor = 'pointer';
 }
 
-function signOut() {
-    var auth2 = gapi.auth2.getAuthInstance();
-    auth2.signOut().then(function () {
-    console.log('User signed out.');
-  });
-    }
 
 
-app.listen(PORT , ()=>{
-    console.log(`STARTED LISTENING ON PORT ${PORT}`)
+
+app.listen(PORT, () =>  {
+    console.log('info', `STARTED LISTENING ON PORT ${PORT}`);
 });
 
-http.createServer(app).listen(8080, function(){
-  console.log('HTTP listening on 8080');
+/*
+http.createServer(app).listen(PORT, function(){
+  console.log(`STARTED LISTENING ON PORT ${PORT}`);
 });
+*/
 https.createServer(options, app).listen(443, function(){
   console.log('HTTPS listening on 443');
 });

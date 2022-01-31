@@ -117,7 +117,7 @@ body {
   padding: 5%;
   background-color: rgba(255, 255, 255, 0.966);
   opacity: 1;
-  transition: opacity .8s ease;
+  transition: opacity .5s ease;
 }
 #cookie-consent.active {
   bottom:0;
@@ -129,4 +129,12 @@ a {
 a:hover {
   text-decoration: none;
   color: #fff;
+}
+.terms{
+  color: black;
+  font-weight: bolder;
+  font-style: italic;
+}
+.terms:hover {
+  transition: 6ms;
 }

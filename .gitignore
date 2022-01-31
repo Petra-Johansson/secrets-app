@@ -128,3 +128,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*debug.log
+
+# CERT
+petras-key.pem
+petras-csr.pem
+petras-cert.pem
