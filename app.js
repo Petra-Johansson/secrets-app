@@ -9,12 +9,28 @@ const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
+
+const MongoClient = require('mongodb').MongoClient;
+const logger = require('./config/logger')
+const auditLog = require('audit-log');
 const app = express();
 const https = require('https');
 const http = require('http');
 const fs = require("fs");
 
 
+auditLog.addTransport("mongoose", {connectionString: "mongodb://localhost/auditdb"})
+
+const PORT = process.env.PORT || 3000
+const uri = process.env.MONGODB;
+
+
+const options = {
+    key: fs.readFileSync('petras-key.pem'),
+    cert: fs.readFileSync('petras-cert.pem')
+}; 
+
+app.use('/healthcheck', require('./routes/healthcheck.routes'));
 
 app.use(express.static('public')); //use the location for our css
 app.set('view engine', 'ejs');
@@ -22,19 +38,20 @@ app.use(bodyParser.urlencoded({
     extended: true
 }));
 
-//cookies
+//session cookies
 app.use(session({
     secret:"Our little secret.",
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: true,
+    cookie: { secure: true }
 }));
 
 app.use(passport.initialize()); //starting passport encryption
 app.use(passport.session());    //passport starting session cookies
 
 //connection to our Mono DB where we have a document for our users.
-//if user registers with Google we can only se the Google ID and submitted Secret
-//if user registers via the form, we can se username, encrypted password and secret   
+//if user registers with Google we can only see the Google ID and submitted Secret
+//if user registers via the form, we can see username, encrypted password and secret   
 mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
 //mongoose.set("useCreateIndex", true); this is no longer needed in Mongoose 6
 
@@ -48,7 +65,7 @@ const userSchema = new mongoose.Schema ({
 userSchema.plugin(passportLocalMongoose); // call plugin save = crypting
 userSchema.plugin(findOrCreate);          // call plugin find = decrypting
 
-const User = new mongoose.model("User", userSchema); //Skapa
+const User = new mongoose.model("User", userSchema);
 
 
 passport.use(User.createStrategy());
@@ -82,10 +99,14 @@ passport.use(new GoogleStrategy({
 
 
 
+
+
 /* 
 ### ALL ROUTES ###
 */ 
 app.get('/', function(req,res){
+  
+
     res.render('home')
 });
 
@@ -152,11 +173,16 @@ app.post('/submit', function(req, res) {
     });
 });
 
-app.get('/logout', function(req,res){
+app.get('/logout', function(req, res, next) {
+    // remove the req.user property and clear the login session
     req.logout();
+  
+    // destroy session data
+    req.session = null;
+  
+    // redirect to homepage
     res.redirect('/');
-});
-
+  });
 
 /*
 The user gets redirected to the Secrets-section if registration or log in = success.
@@ -183,6 +209,8 @@ app.post('/login', function(req, res){
         username: req.body.username,
         password: req.body.password
     });
+    auditLog.logEvent(user.username, 'maybe script name or function', 'what just happened', 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
+    
     req.login(user, function(err){
         if(err){
             console.log(err);
@@ -196,6 +224,25 @@ app.post('/login', function(req, res){
 });
 
 
-app.listen(3000, function(){
-    console.log('Server started on port 3000');
+// friendly recaptcha
+function recaptcha_callback() {
+    var loginBtn = document.querySelector('#login-btn');
+    loginBtn.removeAttribute('disabled');
+    loginBtn.style.cursor = 'pointer';
+}
+
+
+
+
+app.listen(PORT, () =>  {
+    console.log('info', `STARTED LISTENING ON PORT ${PORT}`);
+});
+
+/*
+http.createServer(app).listen(PORT, function(){
+  console.log(`STARTED LISTENING ON PORT ${PORT}`);
+});
+*/
+https.createServer(options, app).listen(443, function(){
+  console.log('HTTPS listening on 443');
 });

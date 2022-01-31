@@ -21,12 +21,12 @@
               <input type="password" class="form-control" name="password" required>
             </div>
             <div class="captcha-container">
-              <div class="frc-captcha" data-sitekey="FCMM87G31C3E2V7P" data-callback="recaptcha_callback"></div>
+              <div class="frc-captcha" data-sitekey="FCMM87G31C3E2V7P" ></div>
               <br/>
-              <div class="g-recaptcha" data-sitekey="6Ld-eiIeAAAAAHOSyH_jxBKDn_IkFSlvy4x36GxT"></div>
+              <div class="g-recaptcha" data-sitekey="6Ld-eiIeAAAAAHOSyH_jxBKDn_IkFSlvy4x36GxT" data-callback="recaptcha_callback"></div>
           </div>
           <br>
-            <button type="submit" class="btn btn-dark login-btn">Login</button>
+            <button id="loginBtn" type="submit" class="btn btn-dark login-btn" disabled>Login</button>
             
 
 
@@ -50,9 +50,9 @@
 </div>
 
 <%- include('partials/footer') %>
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>
   function recaptcha_callback() {
-      var loginBtn = document.querySelector('#login-btn');
-      loginBtn.removeAttribute('disabled');
+      document.getElementById('loginBtn').disabled = false;
   }
 </script>

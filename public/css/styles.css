@@ -59,7 +59,7 @@ body {
    padding: 10px 20px;
    text-align: center;
    text-transform: uppercase;
-   transition: 0.5s;
+   transition: 0.7s;
    background-size: 200% auto;
    color: white;            
    box-shadow: 0 0 5px #eee;
@@ -67,12 +67,12 @@ body {
   
    width: 20%;
  }
- .btn-dark:hover {
+ .btn-dark:hover  {
   background-position: right center; /* change the direction of the change here */
   color: #fff;
   text-decoration: none;
 }
-.btn-light:hover {
+.btn-light:hover  {
   background-position: center right; /* change the direction of the change here */
   color: #fff;
   text-decoration: none;
@@ -90,14 +90,14 @@ body {
   color: #114357;
 }
 
-#cookie-accept,
-#cookie-cancel {
+#accept-btn,
+#cancel-btn {
   box-shadow: 0 0 5px #eee;
   border-radius: 10px;
   margin: 0 5px;
 }
-#cookie-accept:hover,
-#cookie-cancel:hover {
+#accept-btn:hover,
+#cancel-btn:hover {
   cursor: pointer;
   background-color: white;
   font-weight: bolder;
@@ -106,19 +106,35 @@ body {
   margin-bottom: 5%;
 }
 
-#consent-popup {
+#cookie-consent{
   width: 100%;
+  height: 40%;
   text-align:center;
-  position: sticky;
-  bottom: 20%;
+  position: fixed;
+  bottom: -100%;
   left: 0;
   right: 0;
   padding: 5%;
   background-color: rgba(255, 255, 255, 0.966);
   opacity: 1;
-  transition: opacity .8s ease;
+  transition: opacity .5s ease;
 }
-#consent-popup.active {
-
-  display:none;
+#cookie-consent.active {
+  bottom:0;
+}
+a {
+  text-decoration: none;
+  color: #fff;
+}
+a:hover {
+  text-decoration: none;
+  color: #fff;
+}
+.terms{
+  color: black;
+  font-weight: bolder;
+  font-style: italic;
+}
+.terms:hover {
+  transition: 6ms;
 }
