@@ -2,7 +2,7 @@
 body {
   background-color: #114357;
   font-family: 'Poppins', sans-serif;
-  height: 90vh;
+  height: 100vh;
 }
 
 .centered {
@@ -21,7 +21,8 @@ body {
   padding: 2% 2%;
 }
 .jumbotron {
-  background-color: #114357;
+ background-color: #11435796;
+  height:100vh;
 }
 .card{
   border:none;
@@ -64,8 +65,8 @@ body {
    color: white;            
    box-shadow: 0 0 5px #eee;
    border-radius: 10px;
-  
-   width: 20%;
+   min-width: fit-content;
+   max-width: 30%;
  }
  .btn-dark:hover  {
   background-position: right center; /* change the direction of the change here */
@@ -77,8 +78,20 @@ body {
   color: #fff;
   text-decoration: none;
 }
+.register-link, .login-link{
+  color: black;
+  font-weight: 400;
+  font-size:0.8em;
+  line-height: normal;
+
+}
+.register-link:hover, .login-link:hover{
+  font-weight:bolder;
  
- .header-icon{
+  color:#114357;
+}
+
+.header-icon{
    text-align: center;
  }
 #home-btn {
@@ -116,6 +129,7 @@ body {
   right: 0;
   padding: 5%;
   background-color: rgba(255, 255, 255, 0.966);
+
   opacity: 1;
   transition: opacity .5s ease;
 }

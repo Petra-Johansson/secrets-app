@@ -11,7 +11,7 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
 
 const MongoClient = require('mongodb').MongoClient;
-const logger = require('./config/logger')
+
 const auditLog = require('audit-log');
 const app = express();
 const https = require('https');
@@ -98,15 +98,10 @@ passport.use(new GoogleStrategy({
 ));
 
 
-
-
-
 /* 
 ### ALL ROUTES ###
 */ 
 app.get('/', function(req,res){
-  
-
     res.render('home')
 });
 
@@ -142,7 +137,7 @@ app.get('/secrets', function (req, res){
     });
 });
 
-//if a user wants to access /submit-page they need to be logged in 
+//if a user wants to access the /submit-page they need to be logged in 
 //- if not, they will be redirected to Log In
 app.get('/submit', function (req,res) {
     if(req.isAuthenticated()){
@@ -190,9 +185,9 @@ If not, they remain on the same page
 */
 
 app.post('/register', function(req, res){
+  
     User.register({username: req.body.username}, req.body.password, function(err, user){
-        if (err)
-        {
+        if(err){
             console.log(err);
             res.redirect('/register');
         } else {
@@ -209,7 +204,8 @@ app.post('/login', function(req, res){
         username: req.body.username,
         password: req.body.password
     });
-    auditLog.logEvent(user.username, 'maybe script name or function', 'what just happened', 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
+    auditLog.logEvent(user.username, 'maybe script name or function',
+    "what just happened", 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
     
     req.login(user, function(err){
         if(err){
@@ -233,16 +229,16 @@ function recaptcha_callback() {
 
 
 
-
+/*
 app.listen(PORT, () =>  {
     console.log('info', `STARTED LISTENING ON PORT ${PORT}`);
 });
 
-/*
-http.createServer(app).listen(PORT, function(){
-  console.log(`STARTED LISTENING ON PORT ${PORT}`);
-});
 */
+http.createServer(app).listen(PORT, function(){
+  console.log('info', `STARTED LISTENING ON PORT ${PORT}`);
+});
+
 https.createServer(options, app).listen(443, function(){
   console.log('HTTPS listening on 443');
 });
