@@ -4,6 +4,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const mongoose = require('mongoose');
+const flash = require('express-flash')
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
@@ -17,7 +18,7 @@ const app = express();
 const https = require('https');
 const http = require('http');
 const fs = require("fs");
-
+const initializePassport = require('./passport-config')
 
 auditLog.addTransport("mongoose", {connectionString: "mongodb://localhost/auditdb"})
 
@@ -40,7 +41,7 @@ app.use(bodyParser.urlencoded({
 
 //session cookies
 app.use(session({
-    secret:"Our little secret.",
+    secret:process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: { secure: true }
@@ -81,6 +82,7 @@ passport.deserializeUser(function (id, done) {
     });
 });
 
+
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
@@ -96,6 +98,9 @@ passport.use(new GoogleStrategy({
     });
   }
 ));
+
+// ### LOCAL STRATEGY ###
+
 
 
 /* 
@@ -179,13 +184,9 @@ app.get('/logout', function(req, res, next) {
     res.redirect('/');
   });
 
-/*
-The user gets redirected to the Secrets-section if registration or log in = success.
-If not, they remain on the same page
-*/
 
-app.post('/register', function(req, res){
-  
+app.post('/register',(req,res)=>{
+ 
     User.register({username: req.body.username}, req.body.password, function(err, user){
         if(err){
             console.log(err);
@@ -197,7 +198,6 @@ app.post('/register', function(req, res){
         }
     });
 });
-   
 
 app.post('/login', function(req, res){
     const user = new User({
@@ -205,7 +205,7 @@ app.post('/login', function(req, res){
         password: req.body.password
     });
     auditLog.logEvent(user.username, 'maybe script name or function',
-    "what just happened", 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
+    "tried to log in", 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
     
     req.login(user, function(err){
         if(err){
