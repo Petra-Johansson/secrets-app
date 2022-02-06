@@ -10,9 +10,8 @@ const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
-
 const MongoClient = require('mongodb').MongoClient;
-
+const rateLimit = require('express-rate-limit');
 const auditLog = require('audit-log');
 const app = express();
 const https = require('https');
@@ -99,6 +98,21 @@ passport.use(new GoogleStrategy({
   }
 ));
 
+const createLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 10, // Limit each IP to 10 requests per `window` (we have set a window to be =  15 minutes)
+	message: "Too many accounts created from this IP, please try again after 15 minutes",
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 10, // Limit each IP to 10 requests per `window` (we have set a window to be =  15 minutes)
+	message: "Too many requests sent from this IP, please try again after 15 minutes",
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+
 // ### LOCAL STRATEGY ###
 
 
@@ -106,7 +120,7 @@ passport.use(new GoogleStrategy({
 /* 
 ### ALL ROUTES ###
 */ 
-app.get('/', function(req,res){
+app.get('/', limiter, function(req,res){
     res.render('home')
 });
 
@@ -122,10 +136,14 @@ app.get('/auth/google/secrets',
     res.redirect('/secrets');
   });
 
-app.get('/login', function(req,res){
-    res.render('login')
+app.get('/login',limiter, function(req,res){
+    res.render('login')             
 });
-app.get('/register', function(req,res){
+app.get('/terms', function(req, res){
+    res.render('terms')             //Skickar användaren till Terms
+});
+
+app.get('/register',createLimiter, function(req,res){
     res.render('register')
 });
 
