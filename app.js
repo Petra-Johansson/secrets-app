@@ -4,15 +4,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const mongoose = require('mongoose');
-const flash = require('express-flash')
+
 const session = require('express-session');
 const passport = require('passport');
 const passportLocalMongoose = require('passport-local-mongoose');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const findOrCreate = require('mongoose-findorcreate');
-
 const MongoClient = require('mongodb').MongoClient;
 
+const rateLimit = require('express-rate-limit');
 const auditLog = require('audit-log');
 const app = express();
 const https = require('https');
@@ -20,12 +20,15 @@ const http = require('http');
 const fs = require("fs");
 const initializePassport = require('./passport-config')
 
-auditLog.addTransport("mongoose", {connectionString: "mongodb://localhost/auditdb"})
+
+// creating an audit-log in monogDB when users hit specific routes
+// we are logging the routes: /login and /submit 
+auditLog.addTransport("mongoose", {connectionString: process.env.AUDIT_CONNECTION_STRING})
 
 const PORT = process.env.PORT || 3000
 const uri = process.env.MONGODB;
 
-
+// Keys related to our OpenSSL
 const options = {
     key: fs.readFileSync('petras-key.pem'),
     cert: fs.readFileSync('petras-cert.pem')
@@ -53,8 +56,7 @@ app.use(passport.session());    //passport starting session cookies
 //connection to our Mono DB where we have a document for our users.
 //if user registers with Google we can only see the Google ID and submitted Secret
 //if user registers via the form, we can see username, encrypted password and secret   
-mongoose.connect("mongodb://localhost:27017/userDB", {useNewUrlParser: true});
-//mongoose.set("useCreateIndex", true); this is no longer needed in Mongoose 6
+mongoose.connect(process.env.MONGOOSE_CONNECT, {useNewUrlParser: true});
 
 const userSchema = new mongoose.Schema ({
     email: String,
@@ -63,8 +65,8 @@ const userSchema = new mongoose.Schema ({
     secret: String
 });
 
-userSchema.plugin(passportLocalMongoose); // call plugin save = crypting
-userSchema.plugin(findOrCreate);          // call plugin find = decrypting
+userSchema.plugin(passportLocalMongoose);   // call plugin save = encrypting
+userSchema.plugin(findOrCreate);            // call plugin find = decrypting
 
 const User = new mongoose.model("User", userSchema);
 
@@ -86,7 +88,7 @@ passport.deserializeUser(function (id, done) {
 passport.use(new GoogleStrategy({
     clientID: process.env.CLIENT_ID,
     clientSecret: process.env.CLIENT_SECRET,
-    callbackURL: "http://localhost:3000/auth/google/secrets",
+    callbackURL: "https://localhost/auth/google/secrets",
     userProfileURL: "https://www.googleapis.com/oauth2/v3/userinfo"
   },
 
@@ -99,14 +101,27 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-// ### LOCAL STRATEGY ###
 
-
+// With these functions set a limit to the number of request an IP-adress kan send 
+const createLimiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 10, // Limit each IP to 10 requests per `window` (we have set a window to be =  15 minutes)
+	message: "Too many accounts created from this IP, please try again after 15 minutes",
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
+const limiter = rateLimit({
+	windowMs: 15 * 60 * 1000, // 15 minutes
+	max: 20, // Limit each IP to 20 requests per `window` (we have set a window to be =  15 minutes)
+	message: "Too many requests sent from this IP, please try again after 15 minutes",
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+})
 
 /* 
 ### ALL ROUTES ###
 */ 
-app.get('/', function(req,res){
+app.get('/', limiter, function(req,res){
     res.render('home')
 });
 
@@ -122,10 +137,14 @@ app.get('/auth/google/secrets',
     res.redirect('/secrets');
   });
 
-app.get('/login', function(req,res){
-    res.render('login')
+app.get('/login',limiter, function(req,res){
+    res.render('login')             
 });
-app.get('/register', function(req,res){
+app.get('/terms', function(req, res){
+    res.render('terms')             //Skickar användaren till Terms
+});
+
+app.get('/register',createLimiter, function(req,res){
     res.render('register')
 });
 
@@ -169,6 +188,10 @@ app.post('/submit', function(req, res) {
                     res.redirect('/secrets');
                 });
             }
+            // when submitting a secret we also get a log in our mongo DB in our audit-log collection showing:
+            //  actor = user, action= that they submitted a scret and label = the secret it self 
+            auditLog.logEvent(foundUser.username, 'maybe script name or function',
+            "submitted a secret", foundUser.secret, 'target id', 'additional info, JSON, etc.');
         }
     });
 });
@@ -205,7 +228,7 @@ app.post('/login', function(req, res){
         password: req.body.password
     });
     auditLog.logEvent(user.username, 'maybe script name or function',
-    "tried to log in", 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
+    "logged in", 'the affected target name perhaps', 'target id', 'additional info, JSON, etc.');
     
     req.login(user, function(err){
         if(err){
@@ -218,15 +241,6 @@ app.post('/login', function(req, res){
         }
     });
 });
-
-
-// friendly recaptcha
-function recaptcha_callback() {
-    var loginBtn = document.querySelector('#login-btn');
-    loginBtn.removeAttribute('disabled');
-    loginBtn.style.cursor = 'pointer';
-}
-
 
 
 /*

@@ -147,8 +147,18 @@ a:hover {
 .terms{
   color: black;
   font-weight: bolder;
-  font-style: italic;
+  font-style: oblique;
 }
 .terms:hover {
   transition: 6ms;
+  color: #114357;
+}
+.aLink{
+  margin-bottom: 2em;
+  color: black;
+  font-weight: bold;
+}
+.aLink:hover {
+  color: #114357;
+  font-style: italic;
 }
