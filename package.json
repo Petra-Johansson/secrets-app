@@ -11,7 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@sap/audit-logging": "^5.4.1",
+    "@sap/audit-logging": "^5.5.0",
     "audit-log": "^0.9.1",
     "bcrypt": "^5.0.1",
     "body-parser": "^1.19.1",
