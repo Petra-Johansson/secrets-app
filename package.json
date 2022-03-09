@@ -14,7 +14,7 @@
     "@sap/audit-logging": "^5.4.1",
     "audit-log": "^0.9.1",
     "bcrypt": "^5.0.1",
-    "body-parser": "^1.19.1",
+    "body-parser": "^1.19.2",
     "debug": "^4.3.3",
     "dotenv": "^14.2.0",
     "ejs": "^3.1.6",
